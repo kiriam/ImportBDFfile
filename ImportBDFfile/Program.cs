@@ -17,15 +17,16 @@ namespace ImportBDFfile
 {
     class Program
     {
-       static string sql, connectionString;
-       public static string TablaDestino,NombreArchivo,Directorio,sucursal,condicion;
+       static string sql, connectionString, dbfPath;
+       static string TablaDestino,NombreArchivo,Directorio,sucursal,condicion;
+        private static ReaderWriterLockSlim _readWriteLock = new ReaderWriterLockSlim();
         static void Main(string[] args)
         {
 
             string conn = "Data Source=farmatrixsql01.database.windows.net; Initial Catalog=farmatrixdw; User ID=kpena;Password=fQPWEjApzLZd3cnR;Connection Timeout=0;Connection Lifetime=0;Min Pool Size=0;Max Pool Size=1000;Pooling=true ; Encrypt=True;";
             //string conn = "Data Source=MSI-1387; Initial Catalog=FARMATRIX; Connection Timeout=0;Connection Lifetime=0;Min Pool Size=0;Max Pool Size=1000;Pooling=true ; Integrated Security=true;";
-            var dbfPath = @"C:\Conexion\inv_detmovimientos.dbf";
-            //var Directorio = "";
+             dbfPath = @"C:\Conexion\";
+            var Directorio = "";
             var TablaExcepcion = "";
             var File = "";
             int Intentos = 0;
@@ -270,7 +271,7 @@ namespace ImportBDFfile
                                 //Thread hilo2 = new Thread(delegate () { ConvertDbf1(connectionString2, dbfToConvert2, sql2, conn, TablaDestino); });
                                 //hilo2.Start();
                             }
-                          
+
                             Task.WaitAll(tareas.ToArray());
                             //Task.WaitAll(tarea1, tarea2,tarea3,tarea4,tarea5,tarea6);
 
@@ -308,7 +309,7 @@ namespace ImportBDFfile
             }
             catch (Exception ex)
             {
-                EscribirLog(ex.Message, Directorio, TablaExcepcion);
+                EscribirLog(ex.Message, dbfPath, TablaExcepcion);
                 Console.WriteLine(ex.Message);
             }
 
@@ -374,7 +375,8 @@ namespace ImportBDFfile
                                 }
                                 catch (Exception ex)
                                 {
-                                    EscribirLog(ex.Message, Directorio, tablaDestino);
+                                                                       
+                                    EscribirLog(ex.Message, dbfPath, tablaDestino);
                                     //Dts.TaskResult = (int)ScriptResults.Failure;
                                     // MessageBox.Show(" en el bulk " + ex.Message);
                                 }
@@ -387,7 +389,7 @@ namespace ImportBDFfile
             }
             catch (Exception ex)
             {
-                EscribirLog(ex.Message, Directorio, tablaDestino);
+                EscribirLog(ex.Message, dbfPath, dbfFile);
             }
         }
         static void ConvertDbf1(string connectionString, string dbfFile, string comando, string sqlcon, string tablaDestino)
@@ -492,16 +494,46 @@ namespace ImportBDFfile
         }
         public static void EscribirLog(string mensaje, string ruta,string archivo)
         {
-            using (StreamWriter w = File.AppendText($@"{ruta}\log.txt"))
+            // Set Status to Locked
+            _readWriteLock.EnterWriteLock();
+            try
             {
-                w.Write("\r\nRegistro de Log : ");
-                w.WriteLine($"{DateTime.Now.ToLongTimeString()} {DateTime.Now.ToLongDateString()}");
-                w.Write("\r\nArchivo : ");
-                w.WriteLine($"  :{archivo}");
-                w.WriteLine("  :");
-                w.WriteLine($"  :{mensaje}");
-                w.WriteLine("-------------------------------");
+                // Append text to the file
+                using (StreamWriter sw = File.AppendText($@"{ruta.Trim()}log.txt"))
+                {
+                    sw.Write("\r\nRegistro de Log : ");
+                    sw.WriteLine($"{DateTime.Now.ToLongTimeString()} {DateTime.Now.ToLongDateString()}");
+                    sw.Write("\r\nArchivo : ");
+                    sw.WriteLine($"  :{archivo}");
+                    sw.WriteLine("  :");
+                    sw.WriteLine($"  :{mensaje}");
+                    sw.WriteLine("-------------------------------");                   
+                    sw.Close();
+                }
             }
+            finally
+            {
+                // Release lock
+                _readWriteLock.ExitWriteLock();
+            }
+            //if (File.Exists(string.Format($@"{ruta.Trim()}log.txt")))
+            //{
+            //    using (StreamWriter w = File.AppendText($@"{ruta.Trim()}log.txt"))
+            //    {
+            //        w.Write("\r\nRegistro de Log : ");
+            //        w.WriteLine($"{DateTime.Now.ToLongTimeString()} {DateTime.Now.ToLongDateString()}");
+            //        w.Write("\r\nArchivo : ");
+            //        w.WriteLine($"  :{archivo}");
+            //        w.WriteLine("  :");
+            //        w.WriteLine($"  :{mensaje}");
+            //        w.WriteLine("-------------------------------");
+            //        w.Dispose();
+            //    }
+            //}
+            //else
+            //{
+
+            //}
         }
 
     }

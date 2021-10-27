@@ -12,6 +12,8 @@ using System.Collections;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
+
 
 namespace ImportBDFfile
 {
@@ -20,12 +22,14 @@ namespace ImportBDFfile
        static string sql, connectionString, dbfPath;
        static string TablaDestino,NombreArchivo,Directorio,sucursal,condicion;
         private static ReaderWriterLockSlim _readWriteLock = new ReaderWriterLockSlim();
+        
         static void Main(string[] args)
         {
-
+           IConfiguration config; config = new ConfigurationBuilder().AddJsonFile("appSettings.json").Build();
+            dbfPath =config.GetSection("CarpetaLog").Value.Replace("/", @"\"); 
             string conn = "Data Source=farmatrixsql01.database.windows.net; Initial Catalog=farmatrixdw; User ID=kpena;Password=fQPWEjApzLZd3cnR;Connection Timeout=0;Connection Lifetime=0;Min Pool Size=0;Max Pool Size=1000;Pooling=true ; Encrypt=True;";
             //string conn = "Data Source=MSI-1387; Initial Catalog=FARMATRIX; Connection Timeout=0;Connection Lifetime=0;Min Pool Size=0;Max Pool Size=1000;Pooling=true ; Integrated Security=true;";
-             dbfPath = @"C:\Conexion\";
+             //dbfPath = @"C:\Conexion\";
             var Directorio = "";
             var TablaExcepcion = "";
             var File = "";
@@ -88,11 +92,11 @@ namespace ImportBDFfile
                                 {
                                     case "F":
                                         //cuando el campo es date
-                                        condicion = string.Format(" WHERE != deleted() and  {0} > Ctod({1}) ", columnaCondicion, ValorCondicion);
+                                        condicion = string.Format(" WHERE !Deleted() and  {0} > Ctod({1}) ", columnaCondicion, ValorCondicion);
                                         break;
                                     case "E":
                                         //cuando el campo es dateTime
-                                        condicion = string.Format(" WHERE != deleted() and  {0} > {1} ", columnaCondicion, ValorCondicion);
+                                        condicion = string.Format(" WHERE !Deleted() and  {0} > {1} ", columnaCondicion, ValorCondicion);
                                         break;
                                     default:
                                         break;
@@ -122,11 +126,11 @@ namespace ImportBDFfile
                                 {
                                     case "F":
                                         //cuando el campo es date
-                                        condicion = string.Format(" WHERE != deleted() and  {0} > Ctod({1}) ", columnaCondicion, ValorCondicion);
+                                        condicion = string.Format(" WHERE !Deleted() and  {0} > Ctod({1}) ", columnaCondicion, ValorCondicion);
                                         break;
                                     case "E":
                                         //cuando el campo es dateTime
-                                        condicion = string.Format(" WHERE != deleted() and  {0} > {1} ", columnaCondicion, ValorCondicion);
+                                        condicion = string.Format(" WHERE !Deleted() and  {0} > {1} ", columnaCondicion, ValorCondicion);
                                         break;
                                     default:
                                         break;
@@ -155,11 +159,11 @@ namespace ImportBDFfile
                                 {
                                     case "F":
                                         //cuando el campo es date
-                                        condicion = string.Format(" WHERE != deleted() and  {0} > Ctod({1}) ", columnaCondicion, ValorCondicion);
+                                        condicion = string.Format(" WHERE !Deleted() and  {0} > Ctod({1}) ", columnaCondicion, ValorCondicion);
                                         break;
                                     case "E":
                                         //cuando el campo es dateTime
-                                        condicion = string.Format(" WHERE != deleted() and  {0} > {1} ", columnaCondicion, ValorCondicion);
+                                        condicion = string.Format(" WHERE !Deleted() and  {0} > {1} ", columnaCondicion, ValorCondicion);
                                         break;
                                     default:
                                         break;
@@ -188,11 +192,11 @@ namespace ImportBDFfile
                                 {
                                     case "F":
                                         //cuando el campo es date
-                                        condicion = string.Format(" WHERE != deleted() and  {0} > Ctod({1}) ", columnaCondicion, ValorCondicion);
+                                        condicion = string.Format(" WHERE !Deleted() and  {0} > Ctod({1}) ", columnaCondicion, ValorCondicion);
                                         break;
                                     case "E":
                                         //cuando el campo es dateTime
-                                        condicion = string.Format(" WHERE != deleted() and  {0} > {1} ", columnaCondicion, ValorCondicion);
+                                        condicion = string.Format(" WHERE !Deleted() and  {0} > {1} ", columnaCondicion, ValorCondicion);
                                         break;
                                     default:
                                         break;
@@ -223,11 +227,11 @@ namespace ImportBDFfile
                                 {
                                     case "F":
                                         //cuando el campo es date
-                                        condicion = string.Format(" WHERE != deleted() and   {0} > Ctod({1}) ", columnaCondicion, ValorCondicion);
+                                        condicion = string.Format(" WHERE !Deleted() and   {0} > Ctod({1}) ", columnaCondicion, ValorCondicion);
                                         break;
                                     case "E":
                                         //cuando el campo es dateTime
-                                        condicion = string.Format(" WHERE != deleted() and  {0} > {1} ", columnaCondicion, ValorCondicion);
+                                        condicion = string.Format(" WHERE !Deleted() and  {0} > {1} ", columnaCondicion, ValorCondicion);
                                         break;
                                     default:
                                         break;
@@ -256,51 +260,26 @@ namespace ImportBDFfile
                                 {
                                     case "F":
                                         //cuando el campo es date
-                                        condicion = string.Format(" WHERE != deleted() and  {0} > Ctod({1}) ", columnaCondicion, ValorCondicion);
+                                        condicion = string.Format(" WHERE !Deleted() and  {0} > Ctod({1}) ", columnaCondicion, ValorCondicion);
                                         break;
                                     case "E":
                                         //cuando el campo es dateTime
-                                        condicion = string.Format(" WHERE != deleted() and  {0} > {1} ", columnaCondicion, ValorCondicion);
+                                        condicion = string.Format(" WHERE !Deleted() and  {0} > {1} ", columnaCondicion, ValorCondicion);
                                         break;
                                     default:
                                         break;
                                 }
 
                                 tareas.Add(Task.Factory.StartNew(() => ConvertDbf(connectionString2, dbfToConvert5, sql5, conn, TablaDestino, condicion)));
-                                //tarea6 = Task.Factory.StartNew(() => ConvertDbf(connectionString2, dbfToConvert5, sql5, conn, TablaDestino, condicion));
-                                //Thread hilo2 = new Thread(delegate () { ConvertDbf1(connectionString2, dbfToConvert2, sql2, conn, TablaDestino); });
-                                //hilo2.Start();
+                               
                             }
 
-                            Task.WaitAll(tareas.ToArray());
-                            //Task.WaitAll(tarea1, tarea2,tarea3,tarea4,tarea5,tarea6);
+                            Task.WaitAll(tareas.ToArray());                         
 
                             numero += 6;
 
                         }
 
-                        //for (int i = 0; i < dt.Rows.Count; i++)
-                        //{
-                        //    sql = dt.Rows[i]["SelectTable"].ToString();
-                        //    TablaDestino = dt.Rows[i]["TablaDestino"].ToString();
-                        //    NombreArchivo = dt.Rows[i]["NombreTabla"].ToString();
-                        //    Directorio = dt.Rows[i]["Directorio"].ToString();
-                        //    sucursal = dt.Rows[i]["sucursal"].ToString();
-                        //    dbfToConvert = string.Concat(Directorio, NombreArchivo);
-                        //    sql =  sql + string.Format( " ,'{0}' as sucursal", sucursal);
-                        //    connectionString = string.Format(@"Provider=VFPOLEDB.1;Data Source= {0} ", Directorio);
-                        //    ConvertDbf(connectionString, dbfToConvert, sql, conn, TablaDestino);
-                        //}
-
-                        //foreach (DataRow row in dt.Rows)
-                        //{
-                        //    sql = row["SelectTable"].ToString();
-                        //    TablaDestino = row["TablaDestino"].ToString();
-                        //    NombreArchivo = row["NombreTabla"].ToString();
-                        //    dbfToConvert = string.Concat(row["Directorio"].ToString(), NombreArchivo);
-
-                        //    ConvertDbf(connectionString, dbfToConvert, Regex.Replace(dbfToConvert, ".dbf", ".csv", RegexOptions.IgnoreCase), conn, TablaDestino);
-                        //}
 
                     }
 
@@ -334,30 +313,26 @@ namespace ImportBDFfile
             try
             {
                 DataTable dtr = new DataTable();
-                string CondicionValor = string.IsNullOrEmpty(condicion) ? "" : condicion;
+                string CondicionValor = string.IsNullOrEmpty(condicion) ? " WHERE !Deleted() " : condicion;
+
+                string[] selectT = comando.Split(',').Select(n => n).ToArray();
+
                 string sqlSelect = string.Format(comando + " FROM {0} {1}  ", dbfFile, CondicionValor);
                 //string sqlSelect = string.Format("SELECT CAST(NUMTIENDA AS VARCHAR(200)) AS [NUMTIENDA] FROM {0}   ", dbfFile);
-
+                DataTable DtSquema = new DataTable();
+                string[] TablaRestrinccion = new string[4];
+                TablaRestrinccion[2] = "INV_DOCUMENTOS.dbf";
                 using (OleDbConnection connection = new OleDbConnection(connectionString))
                 {
+                    connection.Open();
+                   DtSquema = connection.GetSchema("Columns", TablaRestrinccion);
+                    
+
                     using (OleDbDataAdapter da = new OleDbDataAdapter(sqlSelect, connection))
                     {
                         DataSet ds = new DataSet();
                         da.Fill(dtr);
-
-                        //DataTable dtClone = dtr.Clone(); //just copy structure, no data
-                        //for (int i = 0; i < dtClone.Columns.Count; i++)
-                        //{
-                        //    if (dtClone.Columns[i].DataType != typeof(string))
-                        //        dtClone.Columns[i].DataType = typeof(string);
-                        //}
-
-                        //foreach (DataRow dr in dtr.Rows)
-                        //{
-                        //    dtClone.ImportRow(dr);
-                        //}
-
-
+                                             
 
                         using (SqlConnection conexion = new SqlConnection(sqlcon))
                         {
@@ -365,9 +340,7 @@ namespace ImportBDFfile
                             using (SqlBulkCopy bulkcopy = new SqlBulkCopy(conexion))
                             {
 
-
-
-                                bulkcopy.DestinationTableName = tablaDestino;// tablaDestino;//"[dbo].INV_DEPARTAMENTOS";
+                                bulkcopy.DestinationTableName = tablaDestino;
                                 bulkcopy.BulkCopyTimeout = 0;
                                 try
                                 {
@@ -394,12 +367,14 @@ namespace ImportBDFfile
         }
         static void ConvertDbf1(string connectionString, string dbfFile, string comando, string sqlcon, string tablaDestino)
         {
+           
             DataTable dtr = new DataTable();
-            string sqlSelect = string.Format(comando + " FROM {0} ", dbfFile);
+            string sqlSelect =string.Format(comando + " FROM {0} ", dbfFile);
             //string sqlSelect = string.Format("SELECT CAST(NUMTIENDA AS VARCHAR(200)) AS [NUMTIENDA] FROM {0}   ", dbfFile);
-
+          
             using (OleDbConnection connection = new OleDbConnection(connectionString))
             {
+               
                 using (OleDbDataAdapter da = new OleDbDataAdapter(sqlSelect, connection))
                 {
                     DataSet ds = new DataSet();
@@ -443,6 +418,8 @@ namespace ImportBDFfile
                     }
                     //DataTableToCSV(ds.Tables[0], csvFile);
                 }
+
+
             }
         }
         static void DataTableToCSV(DataTable dt, string csvFile)
@@ -516,24 +493,7 @@ namespace ImportBDFfile
                 // Release lock
                 _readWriteLock.ExitWriteLock();
             }
-            //if (File.Exists(string.Format($@"{ruta.Trim()}log.txt")))
-            //{
-            //    using (StreamWriter w = File.AppendText($@"{ruta.Trim()}log.txt"))
-            //    {
-            //        w.Write("\r\nRegistro de Log : ");
-            //        w.WriteLine($"{DateTime.Now.ToLongTimeString()} {DateTime.Now.ToLongDateString()}");
-            //        w.Write("\r\nArchivo : ");
-            //        w.WriteLine($"  :{archivo}");
-            //        w.WriteLine("  :");
-            //        w.WriteLine($"  :{mensaje}");
-            //        w.WriteLine("-------------------------------");
-            //        w.Dispose();
-            //    }
-            //}
-            //else
-            //{
-
-            //}
+           
         }
 
     }

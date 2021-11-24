@@ -58,7 +58,7 @@ namespace ImportBDFfile
                 using (SqlConnection cn = new SqlConnection(conn))
                 {
 
-                    using (SqlCommand cmd = new SqlCommand("select * from stg.TablaConfiguracion   where habilitado = '1'", cn)) //stg.TablaConfiguracion   -- [dbo].Tablas
+                    using (SqlCommand cmd = new SqlCommand("select * from [dbo].Tablas   where habilitado = '1'", cn)) //stg.TablaConfiguracion   -- [dbo].Tablas
                     {
                         cn.Open();
                         SqlDataAdapter ad = new SqlDataAdapter(cmd);
@@ -203,7 +203,7 @@ namespace ImportBDFfile
                                 string TablaDestino = dtw[3]["TablaDestino"].ToString();
                                 string NombreArchivo = dtw[3]["NombreTabla"].ToString();
                                 TablaExcepcion = dtw[3]["NombreTabla"].ToString();
-                                 Directorio = dtw[3]["Directorio"].ToString();
+                                Directorio = dtw[3]["Directorio"].ToString();
                                 string sucursal = dtw[3]["sucursal"].ToString();
                                 sql3 = sql3 + string.Format(" ,'{0}' as sucursal", sucursal);
                                 string columnaCondicion = dtw[3]["ColumnaCondicion"].ToString();
@@ -229,7 +229,7 @@ namespace ImportBDFfile
                                 }
 
 
-                                tareas.Add(Task.Factory.StartNew(() => ConvertDbf(connectionString2, dbfToConvert3, sql3, conn, TablaDestino, condicion, sucursal, columnaCondicion,TipoCarga)));
+                                tareas.Add(Task.Factory.StartNew(() => ConvertDbf(connectionString2, dbfToConvert3, sql3, conn, TablaDestino, condicion, sucursal, columnaCondicion, TipoCarga)));
                                 //tarea4 = Task.Factory.StartNew(() => ConvertDbf(connectionString2, dbfToConvert3, sql3, conn, TablaDestino,condicion));
                                 //Thread hilo2 = new Thread(delegate () { ConvertDbf1(connectionString2, dbfToConvert2, sql2, conn, TablaDestino); });
                                 //hilo2.Start();
@@ -240,13 +240,13 @@ namespace ImportBDFfile
                                 string TablaDestino = dtw[4]["TablaDestino"].ToString();
                                 string NombreArchivo = dtw[4]["NombreTabla"].ToString();
                                 TablaExcepcion = dtw[4]["NombreTabla"].ToString();
-                                 Directorio = dtw[4]["Directorio"].ToString();
+                                Directorio = dtw[4]["Directorio"].ToString();
                                 string sucursal = dtw[4]["sucursal"].ToString();
                                 sql4 = sql4 + string.Format(" ,'{0}' as sucursal", sucursal);
                                 string columnaCondicion = dtw[4]["ColumnaCondicion"].ToString();
                                 string ValorCondicion = dtw[4]["ValorCondicion"].ToString();
                                 string dbfToConvert4 = string.Concat(Directorio, NombreArchivo);
-                               // condicion = string.Format(" WHERE {0} > Ctod('{1}') ", columnaCondicion, ValorCondicion);
+                                // condicion = string.Format(" WHERE {0} > Ctod('{1}') ", columnaCondicion, ValorCondicion);
                                 string connectionString2 = string.Format(@"Provider=VFPOLEDB.1;Data Source= {0} ", Directorio);
                                 string TipoCondicion = dtw[4]["TipoCondicion"].ToString();
                                 string TipoCarga = dtw[4]["TipoCarga"].ToString();
@@ -266,7 +266,7 @@ namespace ImportBDFfile
                                         break;
                                 }
 
-                                tareas.Add(Task.Factory.StartNew(() => ConvertDbf(connectionString2, dbfToConvert4, sql4, conn, TablaDestino, condicion, sucursal, columnaCondicion,TipoCarga)));
+                                tareas.Add(Task.Factory.StartNew(() => ConvertDbf(connectionString2, dbfToConvert4, sql4, conn, TablaDestino, condicion, sucursal, columnaCondicion, TipoCarga)));
                                 //tarea5 = Task.Factory.StartNew(() => ConvertDbf(connectionString2, dbfToConvert4, sql4, conn, TablaDestino,condicion));
                                 //Thread hilo2 = new Thread(delegate () { ConvertDbf1(connectionString2, dbfToConvert2, sql2, conn, TablaDestino); });
                                 //hilo2.Start();
@@ -277,7 +277,7 @@ namespace ImportBDFfile
                                 string TablaDestino = dtw[5]["TablaDestino"].ToString();
                                 string NombreArchivo = dtw[5]["NombreTabla"].ToString();
                                 TablaExcepcion = dtw[5]["NombreTabla"].ToString();
-                                 Directorio = dtw[5]["Directorio"].ToString();
+                                Directorio = dtw[5]["Directorio"].ToString();
                                 string sucursal = dtw[5]["sucursal"].ToString();
                                 sql5 = sql5 + string.Format(" ,'{0}' as sucursal", sucursal);
                                 string columnaCondicion = dtw[5]["ColumnaCondicion"].ToString();
@@ -302,13 +302,47 @@ namespace ImportBDFfile
                                         break;
                                 }
 
-                                tareas.Add(Task.Factory.StartNew(() => ConvertDbf(connectionString2, dbfToConvert5, sql5, conn, TablaDestino, condicion, sucursal, columnaCondicion,TipoCarga)));
-                               
+                                tareas.Add(Task.Factory.StartNew(() => ConvertDbf(connectionString2, dbfToConvert5, sql5, conn, TablaDestino, condicion, sucursal, columnaCondicion, TipoCarga)));
+
+                            }
+                            if (dtw.Count() > 6)
+                            {
+                                string sql6 = dtw[6]["SelectTable"].ToString();
+                                string TablaDestino = dtw[6]["TablaDestino"].ToString();
+                                string NombreArchivo = dtw[6]["NombreTabla"].ToString();
+                                TablaExcepcion = dtw[6]["NombreTabla"].ToString();
+                                Directorio = dtw[6]["Directorio"].ToString();
+                                string sucursal = dtw[6]["sucursal"].ToString();
+                                sql6 = sql6 + string.Format(" ,'{0}' as sucursal", sucursal);
+                                string columnaCondicion = dtw[6]["ColumnaCondicion"].ToString();
+                                string ValorCondicion = dtw[6]["ValorCondicion"].ToString();
+                                string dbfToConvert6 = string.Concat(Directorio, NombreArchivo);
+                                string connectionString2 = string.Format(@"Provider=VFPOLEDB.1;Data Source= {0} ", Directorio);
+                                string TipoCondicion = dtw[6]["TipoCondicion"].ToString();
+                                string TipoCarga = dtw[6]["TipoCarga"].ToString();
+                                string condicion = "";
+                                switch (TipoCondicion)
+                                {
+                                    case "F":
+                                        //cuando el campo es date
+                                        condicion = string.Format(" WHERE !Deleted() and  {0} > Ctod('{1}') ", columnaCondicion, ValorCondicion);
+                                        break;
+                                    case "E":
+                                        //cuando el campo es dateTime
+                                        condicion = string.Format(" WHERE !Deleted() and  {0} > {1} ", columnaCondicion, ValorCondicion);
+                                        break;
+                                    default:
+                                        condicion = "";
+                                        break;
+                                }
+
+                                tareas.Add(Task.Factory.StartNew(() => ConvertDbf(connectionString2, dbfToConvert6, sql6, conn, TablaDestino, condicion, sucursal, columnaCondicion, TipoCarga)));
+
                             }
 
                             Task.WaitAll(tareas.ToArray());                         
 
-                            numero += 6;
+                            numero += 7 ;
 
                         }
 
@@ -324,6 +358,8 @@ namespace ImportBDFfile
                 Console.WriteLine(ex.Message);
             }
 
+
+  
         }
         public static  bool FileIsLocked(string strFullFileName)
         {
@@ -363,8 +399,10 @@ namespace ImportBDFfile
                     using (OleDbDataAdapter da = new OleDbDataAdapter(sqlSelect, connection))
                     {
                         DataSet ds = new DataSet();
+                        Console.WriteLine(DateTime.Now + " ==> iniciando Lectura archivo dbf  " + dbfFile + "  ==>  " );
                         da.Fill(dtr);
-                                             
+                        Console.WriteLine(DateTime.Now + " ==> Finalizo Lectura archivo dbf  " + dbfFile + "  ==>  ");
+
 
                         using (SqlConnection conexion = new SqlConnection(sqlcon))
                         {
@@ -376,16 +414,19 @@ namespace ImportBDFfile
                                 bulkcopy.BulkCopyTimeout = 0;
                                 try
                                 {
+                                    Console.WriteLine(DateTime.Now + " ==> iniciando Carga AzSQL  " + tablaDestino + "  ==>  ");
                                     bulkcopy.WriteToServer(dtr);
+
 
                                     ActualizarTablaConfig(tablaDestino, sucursal, sqlcon, dtr, columnaCondicion);
 
+                                    Console.WriteLine(DateTime.Now + " ==> finalizo Carga AzSQL  " +  tablaDestino + "  ==>  " + dbfFile );
 
                                 }
                                 catch (Exception ex)
                                 {
                                                                        
-                                    EscribirLog(ex.Message + "  bulk", dbfPath, tablaDestino);
+                                    EscribirLog(ex.Message + "  bulk", dbfPath +"  "+ dbfFile, tablaDestino);
                                     //Dts.TaskResult = (int)ScriptResults.Failure;
                                     // MessageBox.Show(" en el bulk " + ex.Message);
                                 }

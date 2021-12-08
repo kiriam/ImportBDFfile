@@ -47,7 +47,7 @@ namespace ImportBDFfile
             
             
             //string connectionString = @"Provider=VFPOLEDB.1;Data Source=C:\Conexion\";
-            string dbfToConvert = dbfPath;
+            //string dbfToConvert = dbfPath;
 
             // CargaFull(dbfToConvert, "inv_detmovimientos", conn);
             //dbfToConvert.Replace(".dbf", ".csv", RegexOptions.IgnoreCase)
@@ -71,11 +71,12 @@ namespace ImportBDFfile
                         {
                             var Tablafull = TablasHabilitadas.AsEnumerable()
                                              .Where(x => x["TipoCarga"].ToString() == "F")
-                                             .Select(x => new { tablausar = x["TablaDestino"].ToString() }).Distinct(); 
+                                             .Select(x => new { tablausar = x["TablaDestino"].ToString() , sucurTab = x["sucursal"].ToString() }).Distinct(); 
 
                             foreach (var tablaf in Tablafull)
                             {
-                                TruncateTableFullCarga(tablaf.tablausar, conn);
+                                TruncateTableFullCarga(tablaf.tablausar,tablaf.sucurTab, conn); // tratar de borrar los registros de esas sola sucursal
+
                             }
 
                         }
@@ -84,7 +85,7 @@ namespace ImportBDFfile
                         while (numero < TablasHabilitadas.Rows.Count)
                         {                           
                             var rows = TablasHabilitadas.AsEnumerable()
-                                        .Skip(numero).Take(6);
+                                        .Skip(numero).Take(3);
                             //DataTable dte = rows.CopyToDataTable();
                             DataRow[] dtw = rows.ToArray();
 
@@ -94,7 +95,7 @@ namespace ImportBDFfile
                                 string TablaDestino = dtw[0]["TablaDestino"].ToString();
                                 string NombreArchivo = dtw[0]["NombreTabla"].ToString();
                                 TablaExcepcion = dtw[0]["NombreTabla"].ToString();
-                                 Directorio = dtw[0]["Directorio"].ToString();
+                                Directorio = dtw[0]["Directorio"].ToString(); //@"C:\Conexion\FM10399\DATA\";
                                 string sucursal = dtw[0]["sucursal"].ToString();
                                 sql1 = sql1 + string.Format(" ,'{0}' as sucursal", sucursal);
                                 string columnaCondicion = dtw[0]["ColumnaCondicion"].ToString();
@@ -340,9 +341,10 @@ namespace ImportBDFfile
 
                             }
 
-                            Task.WaitAll(tareas.ToArray());                         
+                            Task.WaitAll(tareas.ToArray());
+                            //Task.WhenAll(tareas.ToArray());
 
-                            numero += 7 ;
+                            numero += 3 ;
 
                         }
 
@@ -403,37 +405,38 @@ namespace ImportBDFfile
                         da.Fill(dtr);
                         Console.WriteLine(DateTime.Now + " ==> Finalizo Lectura archivo dbf  " + dbfFile + "  ==>  ");
 
-
-                        using (SqlConnection conexion = new SqlConnection(sqlcon))
-                        {
-                            conexion.Open();
-                            using (SqlBulkCopy bulkcopy = new SqlBulkCopy(conexion))
-                            {
-
-                                bulkcopy.DestinationTableName = tablaDestino;
-                                bulkcopy.BulkCopyTimeout = 0;
-                                try
-                                {
-                                    Console.WriteLine(DateTime.Now + " ==> iniciando Carga AzSQL  " + tablaDestino + "  ==>  ");
-                                    bulkcopy.WriteToServer(dtr);
+                        CargaAZSql(dbfFile, sqlcon, tablaDestino, sucursal, columnaCondicion, dtr);
 
 
-                                    ActualizarTablaConfig(tablaDestino, sucursal, sqlcon, dtr, columnaCondicion);
+                        //using (SqlConnection conexion = new SqlConnection(sqlcon))
+                        //{
+                        //    conexion.Open();
+                        //    using (SqlBulkCopy bulkcopy = new SqlBulkCopy(conexion))
+                        //    {
 
-                                    Console.WriteLine(DateTime.Now + " ==> finalizo Carga AzSQL  " +  tablaDestino + "  ==>  " + dbfFile );
+                        //        bulkcopy.DestinationTableName = tablaDestino;
+                        //        bulkcopy.BulkCopyTimeout = 0;
+                        //        try
+                        //        {
+                        //            Console.WriteLine(DateTime.Now + " ==> iniciando Carga AzSQL  " + tablaDestino + "  ==>  ");
+                        //            bulkcopy.WriteToServer(dtr);
 
-                                }
-                                catch (Exception ex)
-                                {
+                        //            ActualizarTablaConfig(tablaDestino, sucursal, sqlcon, dtr, columnaCondicion);
+
+                        //            Console.WriteLine(DateTime.Now + " ==> finalizo Carga AzSQL  " +  tablaDestino + "  ==>  " + dbfFile );
+
+                        //        }
+                        //        catch (Exception ex)
+                        //        {
                                                                        
-                                    EscribirLog(ex.Message + "  bulk", dbfPath +"  "+ dbfFile, tablaDestino);
-                                    //Dts.TaskResult = (int)ScriptResults.Failure;
-                                    // MessageBox.Show(" en el bulk " + ex.Message);
-                                }
+                        //            EscribirLog(ex.Message + "  bulk", dbfPath +"  "+ dbfFile, tablaDestino);
+                        //            //Dts.TaskResult = (int)ScriptResults.Failure;
+                        //            // MessageBox.Show(" en el bulk " + ex.Message);
+                        //        }
 
-                            }
-                            conexion.Close();
-                        }
+                        //    }
+                        //    conexion.Close();
+                        //}
                         //DataTableToCSV(ds.Tables[0], csvFile);
                     }
                     connection.Close();
@@ -442,6 +445,50 @@ namespace ImportBDFfile
             catch (Exception ex)
             {
                 EscribirLog(ex.Message + "  ConvertDbf", dbfPath, dbfFile);
+            }
+        }
+
+        static void CargaAZSql(string dbfFile,  string sqlcon, string tablaDestino,  string sucursal, string columnaCondicion, DataTable dtr)
+        {
+            try
+            {
+
+                using (SqlConnection conexion = new SqlConnection(sqlcon))
+                {
+                    conexion.Open();
+                    using (SqlBulkCopy bulkcopy = new SqlBulkCopy(conexion))
+                    {
+
+
+                        try
+                        {
+
+                            bulkcopy.DestinationTableName = tablaDestino;
+                            bulkcopy.BulkCopyTimeout = 0;
+
+                            Console.WriteLine(DateTime.Now + " ==> iniciando Carga AzSQL  " + tablaDestino + "  ==>  ");
+                            bulkcopy.WriteToServer(dtr);
+                           
+                            ActualizarTablaConfig(tablaDestino, sucursal, sqlcon, dtr, columnaCondicion);
+
+                            Console.WriteLine(DateTime.Now + " ==> finalizo Carga AzSQL  " + tablaDestino + "  ==>  " + dbfFile);
+
+                        }
+                        catch (Exception ex)
+                        {
+
+                            EscribirLog(ex.Message + "  bulk", dbfPath , tablaDestino + "  " + dbfFile);
+                            //Dts.TaskResult = (int)ScriptResults.Failure;
+                            // MessageBox.Show(" en el bulk " + ex.Message);
+                        }
+
+                    }
+                    conexion.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                EscribirLog(ex.Message + "  Conexion del Bulk ", dbfPath , tablaDestino + "  " + dbfFile);
             }
         }
         static void ActualizarTablaConfig( string tablaDestino, string sucursal, string sqlcon,DataTable dtarc,string columnaCondicion)
@@ -557,11 +604,13 @@ namespace ImportBDFfile
             }
            
         }
-        static void TruncateTableFullCarga(string tabla,  string conexion )
+        static void TruncateTableFullCarga(string tabla, string sucursal,  string conexion )
         {
             try
             {
-                string sql = string.Format("truncate table {0}", tabla);
+                  string sql = string.Format("delete from  {0} where sucursal = '{1}' ", tabla , sucursal );
+                //string sql = string.Format("truncate table {0}", tabla);
+
 
                 using (SqlConnection connection = new SqlConnection(conexion))
                 {

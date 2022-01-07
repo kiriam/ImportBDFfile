@@ -85,7 +85,7 @@ namespace ImportBDFfile
                         while (numero < TablasHabilitadas.Rows.Count)
                         {                           
                             var rows = TablasHabilitadas.AsEnumerable()
-                                        .Skip(numero).Take(3);
+                                        .Skip(numero).Take(6);
                             //DataTable dte = rows.CopyToDataTable();
                             DataRow[] dtw = rows.ToArray();
 
@@ -121,7 +121,7 @@ namespace ImportBDFfile
                                 }
                                 
 
-                                tareas.Add(Task.Factory.StartNew(() => ConvertDbf(connectionString1, dbfToConvert1, sql1, conn, TablaDestino, condicion,sucursal, columnaCondicion,TipoCarga)));
+                                tareas.Add(Task.Factory.StartNew(() => ConvertDbf(connectionString1, dbfToConvert1, sql1, conn, TablaDestino, condicion,sucursal, columnaCondicion, TipoCondicion)));
                                // tarea1 = Task.Factory.StartNew(() => ConvertDbf(connectionString1, dbfToConvert1, sql1, conn, TablaDestino,condicion));
                                 //Thread hilo = new Thread(delegate () { ConvertDbf(connectionString1, dbfToConvert1, sql1, conn, TablaDestino); });
                                 //hilo.Start();
@@ -157,7 +157,7 @@ namespace ImportBDFfile
                                         break;
                                 }
 
-                                tareas.Add(Task.Factory.StartNew(() => ConvertDbf(connectionString2, dbfToConvert2, sql2, conn, TablaDestino, condicion, sucursal, columnaCondicion,TipoCarga)));
+                                tareas.Add(Task.Factory.StartNew(() => ConvertDbf(connectionString2, dbfToConvert2, sql2, conn, TablaDestino, condicion, sucursal, columnaCondicion, TipoCondicion)));
                                // tarea2 = Task.Factory.StartNew(() => ConvertDbf(connectionString2, dbfToConvert2, sql2, conn, TablaDestino,condicion));
                                 //Thread hilo2 = new Thread(delegate () { ConvertDbf1(connectionString2, dbfToConvert2, sql2, conn, TablaDestino); });
                                 //hilo2.Start();
@@ -193,7 +193,7 @@ namespace ImportBDFfile
                                         break;
                                 }
 
-                                tareas.Add(Task.Factory.StartNew(() => ConvertDbf(connectionString2, dbfToConvert2, sql2, conn, TablaDestino, condicion, sucursal, columnaCondicion,TipoCarga)));
+                                tareas.Add(Task.Factory.StartNew(() => ConvertDbf(connectionString2, dbfToConvert2, sql2, conn, TablaDestino, condicion, sucursal, columnaCondicion, TipoCondicion)));
                                 //tarea3 = Task.Factory.StartNew(() => ConvertDbf(connectionString2, dbfToConvert2, sql2, conn, TablaDestino,condicion));
                                 //Thread hilo2 = new Thread(delegate () { ConvertDbf1(connectionString2, dbfToConvert2, sql2, conn, TablaDestino); });
                                 //hilo2.Start();
@@ -230,7 +230,7 @@ namespace ImportBDFfile
                                 }
 
 
-                                tareas.Add(Task.Factory.StartNew(() => ConvertDbf(connectionString2, dbfToConvert3, sql3, conn, TablaDestino, condicion, sucursal, columnaCondicion, TipoCarga)));
+                                tareas.Add(Task.Factory.StartNew(() => ConvertDbf(connectionString2, dbfToConvert3, sql3, conn, TablaDestino, condicion, sucursal, columnaCondicion, TipoCondicion)));
                                 //tarea4 = Task.Factory.StartNew(() => ConvertDbf(connectionString2, dbfToConvert3, sql3, conn, TablaDestino,condicion));
                                 //Thread hilo2 = new Thread(delegate () { ConvertDbf1(connectionString2, dbfToConvert2, sql2, conn, TablaDestino); });
                                 //hilo2.Start();
@@ -267,7 +267,7 @@ namespace ImportBDFfile
                                         break;
                                 }
 
-                                tareas.Add(Task.Factory.StartNew(() => ConvertDbf(connectionString2, dbfToConvert4, sql4, conn, TablaDestino, condicion, sucursal, columnaCondicion, TipoCarga)));
+                                tareas.Add(Task.Factory.StartNew(() => ConvertDbf(connectionString2, dbfToConvert4, sql4, conn, TablaDestino, condicion, sucursal, columnaCondicion, TipoCondicion)));
                                 //tarea5 = Task.Factory.StartNew(() => ConvertDbf(connectionString2, dbfToConvert4, sql4, conn, TablaDestino,condicion));
                                 //Thread hilo2 = new Thread(delegate () { ConvertDbf1(connectionString2, dbfToConvert2, sql2, conn, TablaDestino); });
                                 //hilo2.Start();
@@ -303,7 +303,7 @@ namespace ImportBDFfile
                                         break;
                                 }
 
-                                tareas.Add(Task.Factory.StartNew(() => ConvertDbf(connectionString2, dbfToConvert5, sql5, conn, TablaDestino, condicion, sucursal, columnaCondicion, TipoCarga)));
+                                tareas.Add(Task.Factory.StartNew(() => ConvertDbf(connectionString2, dbfToConvert5, sql5, conn, TablaDestino, condicion, sucursal, columnaCondicion, TipoCondicion)));
 
                             }
                             if (dtw.Count() > 6)
@@ -337,14 +337,14 @@ namespace ImportBDFfile
                                         break;
                                 }
 
-                                tareas.Add(Task.Factory.StartNew(() => ConvertDbf(connectionString2, dbfToConvert6, sql6, conn, TablaDestino, condicion, sucursal, columnaCondicion, TipoCarga)));
+                                tareas.Add(Task.Factory.StartNew(() => ConvertDbf(connectionString2, dbfToConvert6, sql6, conn, TablaDestino, condicion, sucursal, columnaCondicion, TipoCondicion)));
 
                             }
 
                             Task.WaitAll(tareas.ToArray());
                             //Task.WhenAll(tareas.ToArray());
 
-                            numero += 3 ;
+                            numero += 6 ;
 
                         }
 
@@ -383,20 +383,14 @@ namespace ImportBDFfile
             try
             {
                 DataTable dtr = new DataTable();
-                string CondicionValor = string.IsNullOrEmpty(condicion) ? " WHERE !Deleted() " : condicion;
-
-               
+                string CondicionValor = string.IsNullOrEmpty(condicion) ? " WHERE !Deleted() " : condicion;               
 
                 string sqlSelect = string.Format(comando + " FROM {0} {1}  ", dbfFile, CondicionValor);
-                //string sqlSelect = string.Format("SELECT CAST(NUMTIENDA AS VARCHAR(200)) AS [NUMTIENDA] FROM {0}   ", dbfFile);
-               // DataTable DtSquema = new DataTable();
-               // string[] TablaRestrinccion = new string[4];
-               // TablaRestrinccion[2] = "INV_DOCUMENTOS.dbf";
+             
                 using (OleDbConnection connection = new OleDbConnection(connectionString))
                 {
                     connection.Open();
-                   //DtSquema = connection.GetSchema("Columns", TablaRestrinccion);
-                    
+                                      
 
                     using (OleDbDataAdapter da = new OleDbDataAdapter(sqlSelect, connection))
                     {
@@ -405,7 +399,7 @@ namespace ImportBDFfile
                         da.Fill(dtr);
                         Console.WriteLine(DateTime.Now + " ==> Finalizo Lectura archivo dbf  " + dbfFile + "  ==>  ");
 
-                        CargaAZSql(dbfFile, sqlcon, tablaDestino, sucursal, columnaCondicion, dtr);
+                        CargaAZSql(dbfFile, sqlcon, tablaDestino, sucursal, columnaCondicion, dtr, TipoCarga);
 
 
                         //using (SqlConnection conexion = new SqlConnection(sqlcon))
@@ -448,7 +442,7 @@ namespace ImportBDFfile
             }
         }
 
-        static void CargaAZSql(string dbfFile,  string sqlcon, string tablaDestino,  string sucursal, string columnaCondicion, DataTable dtr)
+        static void CargaAZSql(string dbfFile,  string sqlcon, string tablaDestino,  string sucursal, string columnaCondicion, DataTable dtr, string  TipoCondicion)
         {
             try
             {
@@ -469,7 +463,7 @@ namespace ImportBDFfile
                             Console.WriteLine(DateTime.Now + " ==> iniciando Carga AzSQL  " + tablaDestino + "  ==>  ");
                             bulkcopy.WriteToServer(dtr);
                            
-                            ActualizarTablaConfig(tablaDestino, sucursal, sqlcon, dtr, columnaCondicion);
+                            ActualizarTablaConfig(tablaDestino, sucursal, sqlcon, dtr, columnaCondicion, TipoCondicion);
 
                             Console.WriteLine(DateTime.Now + " ==> finalizo Carga AzSQL  " + tablaDestino + "  ==>  " + dbfFile);
 
@@ -491,7 +485,7 @@ namespace ImportBDFfile
                 EscribirLog(ex.Message + "  Conexion del Bulk ", dbfPath , tablaDestino + "  " + dbfFile);
             }
         }
-        static void ActualizarTablaConfig( string tablaDestino, string sucursal, string sqlcon,DataTable dtarc,string columnaCondicion)
+        static void ActualizarTablaConfig( string tablaDestino, string sucursal, string sqlcon,DataTable dtarc,string columnaCondicion,string TipoCondicion)
         {
             try
             {
@@ -499,15 +493,45 @@ namespace ImportBDFfile
                 //string CondicionValor = string.IsNullOrEmpty(condicion) ? " WHERE !Deleted() " : condicion;
                 //
 
-                if (columnaCondicion != "")
+                if (columnaCondicion != "" && dtarc.Rows.Count > 0)
                 {
-                    var Fmin = dtarc.AsEnumerable().Max(x => x.Field<string>(columnaCondicion));
+                     
+                    var fdef = (dynamic)null;
 
-                    string sqlSelect = string.Format("update dbo.tablas set ValorCondicion ='{0}' WHERE TablaDestino ='{1}'  and sucursal ='{2}' ", Fmin, tablaDestino, sucursal); //stg.TablaConfiguracion -- dbo.tablas
+                    switch (TipoCondicion)
+                    {      //cuando el campo es dateTime
+                        case "F":
+                            var Fmin = dtarc.AsEnumerable()
+
+                                .Select(row => DateTime.Parse(row.Field<string>(columnaCondicion)))
+                                .Where(x => x <= DateTime.Now);
+
+                            if (Fmin != null)
+                                fdef = Fmin
+                                           //.Where(x => x <= DateTime.Now)
+                                           .Max().ToShortDateString();
+                            break;
+                        case "E":
+                            //cuando el campo es entero 
+                            //var Fmin1 = dtarc.AsEnumerable().Max(x => x.Field<string>(columnaCondicion));
+                            var Fmin1 = dtarc.AsEnumerable()
+                                             .Select(row => Int64.Parse(row.Field<string>(columnaCondicion)));
+
+                             if (Fmin1!=null)
+                            fdef = Fmin1.Max();
+                            break;
+
+                        default:
+                            fdef = null;
+                            break;
+                    }
+              
+
+                    string sqlSelect = string.Format("update dbo.tablas set ValorCondicion ='{0}' WHERE TablaDestino ='{1}'  and sucursal ='{2}' ", fdef, tablaDestino, sucursal); //stg.TablaConfiguracion -- dbo.tablas
                                                                                                                                                                                                 //string sqlSelect = string.Format("SELECT CAST(NUMTIENDA AS VARCHAR(200)) AS [NUMTIENDA] FROM {0}   ", dbfFile);
                     DataTable DtSquema = new DataTable();
 
-                    if (Fmin != null)
+                    if (fdef != null)
                     {
                         using (SqlConnection conexion = new SqlConnection(sqlcon))
                         {
@@ -527,7 +551,7 @@ namespace ImportBDFfile
             }
             catch (Exception ex)
             {
-                EscribirLog(ex.Message + "  actualizaCol", dbfPath, tablaDestino);
+                EscribirLog(ex.Message + "  actualizaCol", dbfPath, tablaDestino +"  " + sucursal);
             }
         }
                
@@ -617,6 +641,7 @@ namespace ImportBDFfile
                     connection.Open();
                     using (SqlCommand cmd = new SqlCommand(sql, connection))
                     {
+                        cmd.CommandTimeout = 0;
                         cmd.ExecuteNonQuery();
 
                     }
